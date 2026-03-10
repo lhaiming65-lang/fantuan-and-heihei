@@ -18,12 +18,23 @@ $tmpFile = __DIR__ . '/runtime/install_tmp.sql';
 if (!is_dir(__DIR__ . '/runtime')) mkdir(__DIR__ . '/runtime', 0777, true);
 file_put_contents($tmpFile, $sql);
 
-$config = [
-    'host' => 'mysql',
-    'database' => 'acg_faka',
-    'username' => 'root',
-    'password' => 'root',
-];
+// 优先使用 config/database.php（Railway 等环境由 entrypoint 生成）
+if (file_exists(__DIR__ . '/config/database.php')) {
+    $loaded = (array)require __DIR__ . '/config/database.php';
+    $config = [
+        'host' => $loaded['host'] ?? 'mysql',
+        'database' => $loaded['database'] ?? 'acg_faka',
+        'username' => $loaded['username'] ?? 'root',
+        'password' => $loaded['password'] ?? 'root',
+    ];
+} else {
+    $config = [
+        'host' => 'mysql',
+        'database' => 'acg_faka',
+        'username' => 'root',
+        'password' => 'root',
+    ];
+}
 
 $dsn = "mysql:dbname={$config['database']};host={$config['host']}";
 try {
@@ -32,19 +43,22 @@ try {
     echo "数据库初始化成功！\n";
     echo "管理员: admin@admin.com / admin123\n";
     file_put_contents(__DIR__ . '/kernel/Install/Lock', '');
-    $dbConfig = '<?php
+    // 保持现有 config，不覆盖（Railway 已由 entrypoint 生成）
+    if (!file_exists(__DIR__ . '/config/database.php')) {
+        $dbConfig = '<?php
 declare(strict_types=1);
 return [
     "driver" => "mysql",
-    "host" => "mysql",
-    "database" => "acg_faka",
-    "username" => "root",
-    "password" => "root",
+    "host" => "' . $config['host'] . '",
+    "database" => "' . $config['database'] . '",
+    "username" => "' . $config['username'] . '",
+    "password" => "' . addslashes($config['password']) . '",
     "charset" => "utf8mb4",
     "collation" => "utf8mb4_unicode_ci",
     "prefix" => "acg_",
 ];';
-    file_put_contents(__DIR__ . '/config/database.php', $dbConfig);
+        file_put_contents(__DIR__ . '/config/database.php', $dbConfig);
+    }
     unlink($tmpFile);
 } catch (Exception $e) {
     echo "错误: " . $e->getMessage() . "\n";
