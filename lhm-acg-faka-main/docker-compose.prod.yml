@@ -1,0 +1,44 @@
+# 生产环境 Docker 配置
+# 用法: docker-compose -f docker-compose.prod.yml up -d
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: acg-faka-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: acg_faka
+      MYSQL_CHARSET: utf8mb4
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - acg-net
+
+  web:
+    build: .
+    container_name: acg-faka-web
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    networks:
+      - acg-net
+
+volumes:
+  mysql_data:
+
+networks:
+  acg-net:
+    driver: bridge
