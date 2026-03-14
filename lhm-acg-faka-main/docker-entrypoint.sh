@@ -10,12 +10,15 @@ a2enmod mpm_prefork 2>/dev/null || true
 if [ -n "$MYSQLHOST" ] || [ -n "$MYSQL_URL" ]; then
     if [ -n "$MYSQLHOST" ]; then
         DB_HOST="$MYSQLHOST"
+        DB_PORT="${MYSQLPORT:-3306}"
         DB_NAME="${MYSQLDATABASE:-acg_faka}"
         DB_USER="${MYSQLUSER:-root}"
         DB_PASS="${MYSQLPASSWORD:-root}"
     else
         # 解析 MYSQL_URL (简单解析，密码勿含特殊字符)
         DB_HOST=$(echo "$MYSQL_URL" | sed -n 's|.*@\([^:/]*\).*|\1|p')
+        DB_PORT=$(echo "$MYSQL_URL" | sed -n 's|.*:\([0-9]*\)/.*|\1|p')
+        DB_PORT="${DB_PORT:-3306}"
         DB_NAME=$(echo "$MYSQL_URL" | sed -n 's|.*/\([^?]*\).*|\1|p')
         DB_USER=$(echo "$MYSQL_URL" | sed -n 's|mysql://\([^:]*\):.*|\1|p')
         DB_PASS=$(echo "$MYSQL_URL" | sed -n 's|mysql://[^:]*:\([^@]*\)@.*|\1|p')
@@ -26,6 +29,7 @@ declare (strict_types=1);
 return [
     'driver' => 'mysql',
     'host' => '${DB_HOST}',
+    'port' => '${DB_PORT}',
     'database' => '${DB_NAME}',
     'username' => '${DB_USER}',
     'password' => '${DB_PASS}',

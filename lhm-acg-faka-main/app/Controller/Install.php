@@ -113,11 +113,13 @@ class Install extends User
         }
 
         //导入数据库
-        SQL::import($sqlFile . ".tmp", $host, $map['database'], $map['username'], $map['password'], $map['prefix']);
+        $port = $map['port'] ?? '3306';
+        SQL::import($sqlFile . ".tmp", $host, $map['database'], $map['username'], $map['password'], $map['prefix'], $port);
         //设置数据库账号密码
         setConfig([
             'driver' => 'mysql',
             'host' => $host,
+            'port' => $port,
             'database' => $map['database'],
             'username' => $map['username'],
             'password' => $map['password'],

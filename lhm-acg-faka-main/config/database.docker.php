@@ -7,6 +7,7 @@ declare (strict_types=1);
 return [
     'driver' => 'mysql',
     'host' => 'mysql',
+    'port' => '3306',
     'database' => 'acg_faka',
     'username' => 'root',
     'password' => 'root',

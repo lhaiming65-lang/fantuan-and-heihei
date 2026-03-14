@@ -278,7 +278,8 @@
             </fieldset>
             <fieldset class="section">
                 <h3 style="color: pink;font-weight: bold;">配置您的数据库信息</h3>
-                <input type="text" name="host" placeholder="数据库地址（Docker填mysql，本机填127.0.0.1）" value="mysql">
+                <input type="text" name="host" placeholder="数据库地址（Docker填mysql，Railway填TCP代理域名）" value="mysql">
+                <input type="text" name="port" placeholder="端口（默认3306，Railway填TCP代理端口）" value="3306">
                 <input type="text" name="database" placeholder="数据库名称" value="acg_faka">
                 <input type="text" name="username" placeholder="数据库账号" value="root">
                 <input type="text" name="password" placeholder="数据库密码" value="root">
@@ -324,6 +325,7 @@
             var headerSection = $('.steps li').eq(currentSectionIndex);
 
             let host = getValue('host');
+            let port = getValue('port');
             let database = getValue('database');
             let username = getValue('username');
             let password = getValue('password');
@@ -340,6 +342,7 @@
 
             if (currentSectionIndex == 1) {
                 //验证主机
+                if (port == '') port = '3306';
                 if (database == '') {
                     layer.msg("请填写数据库名称");
                     return;

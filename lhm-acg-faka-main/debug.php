@@ -18,6 +18,7 @@ header('Content-Type: text/html; charset=utf-8');
 <p>MYSQLHOST: <?= getenv('MYSQLHOST') ?: '<span style="color:red">未设置</span>' ?></p>
 <p>MYSQLUSER: <?= getenv('MYSQLUSER') ?: '(未设置)' ?></p>
 <p>MYSQLDATABASE: <?= getenv('MYSQLDATABASE') ?: '(未设置)' ?></p>
+<p>MYSQLPORT: <?= getenv('MYSQLPORT') ?: '(未设置，默认3306)' ?></p>
 <p>MYSQL_URL: <?= getenv('MYSQL_URL') ? '已设置' : '(未设置)' ?></p>
 
 <h2>3. 数据库配置</h2>
@@ -26,6 +27,7 @@ $dbFile = __DIR__ . '/config/database.php';
 if (file_exists($dbFile)) {
     $db = require $dbFile;
     echo '<p>host: ' . htmlspecialchars($db['host'] ?? '') . '</p>';
+    echo '<p>port: ' . htmlspecialchars($db['port'] ?? '3306') . '</p>';
     echo '<p>database: ' . htmlspecialchars($db['database'] ?? '') . '</p>';
     echo '<p>username: ' . htmlspecialchars($db['username'] ?? '') . '</p>';
 } else {
@@ -37,8 +39,9 @@ if (file_exists($dbFile)) {
 <?php
 if (file_exists($dbFile)) {
     $db = require $dbFile;
+    $port = $db['port'] ?? '3306';
     try {
-        $dsn = "mysql:host={$db['host']};dbname={$db['database']};charset=utf8mb4";
+        $dsn = "mysql:host={$db['host']};port={$port};dbname={$db['database']};charset=utf8mb4";
         new PDO($dsn, $db['username'], $db['password'] ?? '');
         echo '<p style="color:green">✓ 数据库连接成功</p>';
     } catch (PDOException $e) {

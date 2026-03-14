@@ -23,6 +23,7 @@ if (file_exists(__DIR__ . '/config/database.php')) {
     $loaded = (array)require __DIR__ . '/config/database.php';
     $config = [
         'host' => $loaded['host'] ?? 'mysql',
+        'port' => $loaded['port'] ?? '3306',
         'database' => $loaded['database'] ?? 'acg_faka',
         'username' => $loaded['username'] ?? 'root',
         'password' => $loaded['password'] ?? 'root',
@@ -36,7 +37,8 @@ if (file_exists(__DIR__ . '/config/database.php')) {
     ];
 }
 
-$dsn = "mysql:dbname={$config['database']};host={$config['host']}";
+$port = $config['port'] ?? '3306';
+$dsn = "mysql:dbname={$config['database']};host={$config['host']};port={$port}";
 try {
     $pdo = new PDO($dsn, $config['username'], $config['password']);
     $pdo->exec($sql);
