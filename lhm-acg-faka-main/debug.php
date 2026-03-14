@@ -64,8 +64,24 @@ if (file_exists($dbFile)) {
 <?php elseif (!file_exists(__DIR__ . '/kernel/Install/Lock')): ?>
 <p>数据库已配置。请访问 <a href="/install/step">/install/step</a> 完成安装。</p>
 <?php else: ?>
-<p style="color:green">配置正常。若首页仍空白，请检查浏览器控制台或尝试访问 <a href="/user/index/index">/user/index/index</a></p>
+<p style="color:green">配置正常。</p>
 <?php endif; ?>
+
+<h2>7. 首页响应测试</h2>
+<?php
+$homeUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/';
+$ctx = stream_context_create(['http' => ['timeout' => 5]]);
+$homeContent = @file_get_contents($homeUrl, false, $ctx);
+$len = $homeContent !== false ? strlen($homeContent) : 0;
+echo "<p>首页 URL: <code>" . htmlspecialchars($homeUrl) . "</code></p>";
+echo "<p>响应长度: " . $len . " 字节</p>";
+if ($len > 0) {
+    echo "<p style='color:green'>✓ 首页有返回内容</p>";
+    echo "<details><summary>前 500 字符预览</summary><pre style='background:#f5f5f5;padding:10px;overflow:auto;max-height:200px;'>" . htmlspecialchars(substr($homeContent, 0, 500)) . "</pre></details>";
+} else {
+    echo "<p style='color:red'>✗ 首页返回为空或请求失败</p>";
+}
+?>
 
 <hr><p><small>诊断完成后请删除 debug.php</small></p>
 </body>
