@@ -27,7 +27,7 @@ RUN mkdir -p /var/www/html/assets/cache/general/image \
              /var/www/html/assets/cache/images \
              /var/www/html/runtime/view/cache \
              /var/www/html/runtime/view/compile \
-    && chown -R www-data:www-data /var/www/html/assets/cache /var/www/html/runtime
+    && chown -R www-data:www-data /var/www/html/assets/cache /var/www/html/runtime /var/www/html/config
 
 # 设置 Apache 文档根目录
 ENV APACHE_DOCUMENT_ROOT /var/www/html

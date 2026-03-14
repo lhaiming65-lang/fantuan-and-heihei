@@ -73,6 +73,9 @@ return [
 STOREEOF
 fi
 
+# 确保 config 目录可写，否则应用商店/支付插件注册与登录无法写入 store.php（会报「没有文件写入插件权限」）
+chown -R www-data:www-data /var/www/html/config
+
 # Railway：首次部署时自动初始化数据库
 if [ ! -f /var/www/html/kernel/Install/Lock ] && [ -n "$MYSQLHOST" ]; then
     echo "Railway: 首次部署，初始化数据库..."
