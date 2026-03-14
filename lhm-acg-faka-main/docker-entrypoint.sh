@@ -47,6 +47,14 @@ fi
 mkdir -p /var/www/html/runtime/view/cache /var/www/html/runtime/view/compile
 chown -R www-data:www-data /var/www/html/runtime
 
+# 确保上传缓存目录存在且可写（后台/用户图片等）
+mkdir -p /var/www/html/assets/cache/general/image \
+         /var/www/html/assets/cache/general/video \
+         /var/www/html/assets/cache/general/doc \
+         /var/www/html/assets/cache/general/other \
+         /var/www/html/assets/cache/images
+chown -R www-data:www-data /var/www/html/assets/cache
+
 # 反向代理环境：使用 X-Forwarded-For 作为客户端 IP，避免“登录会话过期”
 # 0=REMOTE_ADDR 1=X-Real-IP 2=X-Forwarded-For（Railway/Cloudflare 用此传真实 IP）
 echo "2" > /var/www/html/runtime/mode

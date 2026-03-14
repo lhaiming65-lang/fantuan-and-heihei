@@ -21,6 +21,10 @@ docker-compose -f docker-compose.prod.yml up -d --build
 echo "等待数据库就绪..."
 sleep 15
 
+# 确保上传目录存在且可写（解决「上传目录不可写」）
+echo "设置上传目录权限..."
+docker exec acg-faka-web bash -c 'mkdir -p /var/www/html/assets/cache/general/image /var/www/html/assets/cache/general/video /var/www/html/assets/cache/general/doc /var/www/html/assets/cache/general/other /var/www/html/assets/cache/images && chown -R www-data:www-data /var/www/html/assets/cache' 2>/dev/null || true
+
 # 初始化数据库（若未安装）
 if [ ! -f kernel/Install/Lock ]; then
     echo "初始化数据库..."
