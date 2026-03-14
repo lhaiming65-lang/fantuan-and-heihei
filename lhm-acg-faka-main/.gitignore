@@ -21,8 +21,5 @@ Thumbs.db
 *.swp
 *.swo
 
-# Composer
+# Composer（lock 已提交以保障 Railway 构建一致性）
 vendor/
-composer.lock
-
-# 可选：若需保留 vendor 可删除上一行

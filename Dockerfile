@@ -23,7 +23,8 @@ WORKDIR /var/www/html
 COPY lhm-acg-faka-main/ /var/www/html/
 
 # 构建时安装 PHP 依赖（vendor 被 .gitignore 排除，需在镜像中生成）
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction \
+    && test -f vendor/autoload.php || (echo "ERROR: composer install failed - vendor/autoload.php not found" && exit 1)
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
