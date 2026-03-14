@@ -40,4 +40,10 @@ if [ ! -f /var/www/html/kernel/Install/Lock ] && [ -n "$MYSQLHOST" ]; then
     php /var/www/html/docker-init-db.php || true
 fi
 
+# Railway：监听 PORT 环境变量（默认 80）
+if [ -n "$PORT" ]; then
+    sed -i "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf
+    sed -i "s/:80/:$PORT/g" /etc/apache2/sites-available/*.conf
+fi
+
 exec apache2-foreground
