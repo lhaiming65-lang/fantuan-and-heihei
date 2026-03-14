@@ -43,6 +43,19 @@ elif [ -f /var/www/html/config/database.docker.php ]; then
     cp /var/www/html/config/database.docker.php /var/www/html/config/database.php
 fi
 
+# 若 config/store.php 不存在则创建默认配置（Kernel.php 启动时必需，否则 PHP 报错被静默）
+if [ ! -f /var/www/html/config/store.php ]; then
+    cat > /var/www/html/config/store.php << 'STOREEOF'
+<?php
+declare (strict_types=1);
+return [
+    'server' => 0,
+    'app_id' => '',
+    'app_key' => 'acg_faka_default_k',
+];
+STOREEOF
+fi
+
 # Railway：首次部署时自动初始化数据库
 if [ ! -f /var/www/html/kernel/Install/Lock ] && [ -n "$MYSQLHOST" ]; then
     echo "Railway: 首次部署，初始化数据库..."
