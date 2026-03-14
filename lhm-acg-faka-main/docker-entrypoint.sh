@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+# 修复 Apache 多 MPM 冲突（Railway 环境常见问题）
+a2dismod mpm_event mpm_worker 2>/dev/null || true
+rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker.* 2>/dev/null || true
+a2enmod mpm_prefork 2>/dev/null || true
+
 # Railway 环境：从环境变量生成数据库配置
 if [ -n "$MYSQLHOST" ] || [ -n "$MYSQL_URL" ]; then
     if [ -n "$MYSQLHOST" ]; then
