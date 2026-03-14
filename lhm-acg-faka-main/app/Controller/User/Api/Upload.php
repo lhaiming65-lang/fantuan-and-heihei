@@ -30,6 +30,10 @@ class Upload extends User
     private Image $image;
     const MIME = ['image', 'video', 'doc', 'other'];
 
+    /** 图片最大 5MB，其他类型 1000MB */
+    private const IMAGE_MAX_SIZE_KB = 5120;
+    private const OTHER_MAX_SIZE_KB = 1024000;
+
     /**
      * @param Request $request
      * @return array
@@ -43,10 +47,15 @@ class Upload extends User
         if (!in_array($type, self::MIME)) {
             throw new JSONException("mime not supported");
         }
+        if (!isset($_FILES['file']) || !is_uploaded_file($_FILES['file']['tmp_name'] ?? '')) {
+            throw new JSONException("请选择要上传的文件");
+        }
+        $maxSizeKb = $type === 'image' ? self::IMAGE_MAX_SIZE_KB : self::OTHER_MAX_SIZE_KB;
         $static_path = "/assets/cache/user/{$this->getUser()->id}/{$type}/";
-        $handle = $this->upload->handle($_FILES['file'], BASE_PATH . $static_path, ['jpg', 'png', 'jpeg', 'bmp', 'webp', 'ico', 'gif', 'mp4', 'zip', 'woff', 'woff2', 'ttf', 'otf'], 1024000);
+        $handle = $this->upload->handle($_FILES['file'], BASE_PATH . $static_path, ['jpg', 'png', 'jpeg', 'bmp', 'webp', 'ico', 'gif', 'mp4', 'zip', 'woff', 'woff2', 'ttf', 'otf'], $maxSizeKb);
         if (!is_array($handle)) {
-            throw new JSONException($handle);
+            $msg = ($type === 'image' && $handle === '文件太大') ? '图片不能超过5MB' : $handle;
+            throw new JSONException($msg);
         }
 
         $fileName = $static_path . $handle['new_name'];

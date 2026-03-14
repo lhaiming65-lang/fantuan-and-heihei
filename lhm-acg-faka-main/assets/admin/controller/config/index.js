@@ -33,7 +33,8 @@
                 insertImgFn(result.data.url);
             },
             error: function (xhr, editor, resData) {
-                layer.msg("图片上传失败，文件可能过大");
+                const msg = (xhr && xhr.responseJSON && xhr.responseJSON.msg) ? xhr.responseJSON.msg : (resData && resData.msg) ? resData.msg : "图片上传失败，请检查网络或文件大小（不超过5MB）";
+                layer.msg(msg);
             },
         }
         editor.config.uploadVideoServer = uploadUrl + "?mime=video";
