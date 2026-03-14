@@ -47,6 +47,11 @@ fi
 mkdir -p /var/www/html/runtime/view/cache /var/www/html/runtime/view/compile
 chown -R www-data:www-data /var/www/html/runtime
 
+# 反向代理环境：使用 X-Forwarded-For 作为客户端 IP，避免“登录会话过期”
+# 0=REMOTE_ADDR 1=X-Real-IP 2=X-Forwarded-For（Railway/Cloudflare 用此传真实 IP）
+echo "2" > /var/www/html/runtime/mode
+chown www-data:www-data /var/www/html/runtime/mode
+
 # 若 config/store.php 不存在则创建默认配置（Kernel.php 启动时必需，否则 PHP 报错被静默）
 if [ ! -f /var/www/html/config/store.php ]; then
     cat > /var/www/html/config/store.php << 'STOREEOF'

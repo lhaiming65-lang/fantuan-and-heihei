@@ -70,10 +70,14 @@ class ManageSession implements InterceptorInterface
             $this->kick($type);
         }
 
+        // 反向代理/负载均衡下 IP 可能变化，可通过 TRUST_PROXY=1 跳过 IP 校验
+        $skipIpCheck = (getenv('TRUST_PROXY') === '1' || getenv('RAILWAY_ENVIRONMENT') !== false);
+        $ipOk = $skipIpCheck || ($manage->login_ip === Client::getAddress());
+
         if (
             $jwt->expire <= time() ||
             $manage->login_time != $jwt->loginTime ||
-            $manage->login_ip != Client::getAddress() ||
+            !$ipOk ||
             $manage->status != 1
         ) {
             $this->kick($type);
