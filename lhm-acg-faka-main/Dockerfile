@@ -19,7 +19,7 @@ WORKDIR /var/www/html
 # 复制项目文件
 COPY . /var/www/html
 
-# 创建上传与缓存目录并赋权（无服务器/Railway 等无法 SSH 时依赖镜像内权限）
+# 创建上传、缓存与插件目录并赋权（无服务器/Railway 等无法 SSH 时依赖镜像内权限）
 RUN mkdir -p /var/www/html/assets/cache/general/image \
              /var/www/html/assets/cache/general/video \
              /var/www/html/assets/cache/general/doc \
@@ -27,7 +27,11 @@ RUN mkdir -p /var/www/html/assets/cache/general/image \
              /var/www/html/assets/cache/images \
              /var/www/html/runtime/view/cache \
              /var/www/html/runtime/view/compile \
-    && chown -R www-data:www-data /var/www/html/assets/cache /var/www/html/runtime /var/www/html/config
+             /var/www/html/runtime/plugin \
+             /var/www/html/app/Pay \
+             /var/www/html/app/Plugin \
+             /var/www/html/kernel/Install/OS \
+    && chown -R www-data:www-data /var/www/html/assets/cache /var/www/html/runtime /var/www/html/config /var/www/html/app/Pay /var/www/html/app/Plugin /var/www/html/kernel/Install
 
 # 设置 Apache 文档根目录
 ENV APACHE_DOCUMENT_ROOT /var/www/html

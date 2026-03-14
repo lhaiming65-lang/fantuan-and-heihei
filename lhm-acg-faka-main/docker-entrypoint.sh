@@ -55,6 +55,18 @@ mkdir -p /var/www/html/assets/cache/general/image \
          /var/www/html/assets/cache/images
 chown -R www-data:www-data /var/www/html/assets/cache
 
+# 确保插件目录可写（应用商店安装的支付插件 → app/Pay，通用插件 → app/Plugin，否则安装后不显示）
+mkdir -p /var/www/html/app/Pay /var/www/html/app/Plugin
+chown -R www-data:www-data /var/www/html/app/Pay /var/www/html/app/Plugin
+
+# 应用商店下载的安装包临时目录
+mkdir -p /var/www/html/kernel/Install/OS
+chown -R www-data:www-data /var/www/html/kernel/Install
+
+# 插件缓存目录（store.cache 等，缺失会导致插件列表异常）
+mkdir -p /var/www/html/runtime/plugin
+chown -R www-data:www-data /var/www/html/runtime
+
 # 反向代理环境：使用 X-Forwarded-For 作为客户端 IP，避免“登录会话过期”
 # 0=REMOTE_ADDR 1=X-Real-IP 2=X-Forwarded-For（Railway/Cloudflare 用此传真实 IP）
 echo "2" > /var/www/html/runtime/mode
