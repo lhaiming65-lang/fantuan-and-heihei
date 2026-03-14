@@ -69,17 +69,45 @@ if (file_exists($dbFile)) {
 
 <h2>7. 首页响应测试</h2>
 <?php
-$homeUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '/';
+$baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 $ctx = stream_context_create(['http' => ['timeout' => 5]]);
-$homeContent = @file_get_contents($homeUrl, false, $ctx);
-$len = $homeContent !== false ? strlen($homeContent) : 0;
-echo "<p>首页 URL: <code>" . htmlspecialchars($homeUrl) . "</code></p>";
-echo "<p>响应长度: " . $len . " 字节</p>";
-if ($len > 0) {
-    echo "<p style='color:green'>✓ 首页有返回内容</p>";
-    echo "<details><summary>前 500 字符预览</summary><pre style='background:#f5f5f5;padding:10px;overflow:auto;max-height:200px;'>" . htmlspecialchars(substr($homeContent, 0, 500)) . "</pre></details>";
+
+// 测试1: 直接访问 index.php
+$url1 = $baseUrl . '/index.php?s=/user/index/index';
+$c1 = @file_get_contents($url1, false, $ctx);
+$len1 = $c1 !== false ? strlen($c1) : 0;
+echo "<p><b>直接 index.php:</b> <code>" . htmlspecialchars($url1) . "</code> → " . $len1 . " 字节</p>";
+
+// 测试2: 访问根路径 /
+$url2 = $baseUrl . '/';
+$c2 = @file_get_contents($url2, false, $ctx);
+$len2 = $c2 !== false ? strlen($c2) : 0;
+echo "<p><b>根路径 /:</b> " . $len2 . " 字节</p>";
+
+if ($len1 > 0 || $len2 > 0) {
+    $content = $len1 > 0 ? $c1 : $c2;
+    echo "<p style='color:green'>✓ 有返回内容</p>";
+    echo "<details><summary>前 800 字符</summary><pre style='background:#f5f5f5;padding:10px;overflow:auto;max-height:250px;font-size:11px;'>" . htmlspecialchars(substr($content, 0, 800)) . "</pre></details>";
 } else {
-    echo "<p style='color:red'>✗ 首页返回为空或请求失败</p>";
+    echo "<p style='color:red'>✗ 两者均返回空，可能是 PHP 致命错误被静默</p>";
+}
+?>
+
+<h2>8. 应用引导测试（捕获错误）</h2>
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+$_GET['s'] = '/user/index/index';
+ob_start();
+try {
+    require __DIR__ . '/index.php';
+    $out = ob_get_clean();
+    echo "<p style='color:green'>✓ 引导成功，输出 " . strlen($out) . " 字节</p>";
+    echo "<details><summary>输出预览</summary><pre style='background:#f5f5f5;padding:10px;overflow:auto;max-height:200px;font-size:11px;'>" . htmlspecialchars(substr($out, 0, 600)) . "</pre></details>";
+} catch (Throwable $e) {
+    ob_end_clean();
+    echo "<p style='color:red'>✗ 错误: " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<pre style='background:#ffe0e0;padding:10px;font-size:11px;'>" . htmlspecialchars($e->getFile() . ':' . $e->getLine() . "\n" . $e->getTraceAsString()) . "</pre>";
 }
 ?>
 
