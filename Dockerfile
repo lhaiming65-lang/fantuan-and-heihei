@@ -26,9 +26,16 @@ COPY lhm-acg-faka-main/ /var/www/html/
 RUN composer install --no-dev --optimize-autoloader --no-interaction \
     && test -f vendor/autoload.php || (echo "ERROR: composer install failed - vendor/autoload.php not found" && exit 1)
 
-ENV APACHE_DOCUMENT_ROOT /var/www/html
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# 创建 Smarty 模板引擎所需的 runtime 目录（.gitignore 排除了 runtime/）
+RUN mkdir -p /var/www/html/runtime/view/cache \
+             /var/www/html/runtime/view/compile \
+    && chown -R www-data:www-data /var/www/html/runtime
+
+# Apache：启用 AllowOverride 以支持 .htaccess 重写规则
+RUN sed -ri -e 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
+
+# 确保 www-data 有写入权限
+RUN chown -R www-data:www-data /var/www/html/config /var/www/html/kernel/Install
 
 COPY lhm-acg-faka-main/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

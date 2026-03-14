@@ -43,6 +43,10 @@ elif [ -f /var/www/html/config/database.docker.php ]; then
     cp /var/www/html/config/database.docker.php /var/www/html/config/database.php
 fi
 
+# 确保 Smarty 模板引擎所需的 runtime 目录存在且可写
+mkdir -p /var/www/html/runtime/view/cache /var/www/html/runtime/view/compile
+chown -R www-data:www-data /var/www/html/runtime
+
 # 若 config/store.php 不存在则创建默认配置（Kernel.php 启动时必需，否则 PHP 报错被静默）
 if [ ! -f /var/www/html/config/store.php ]; then
     cat > /var/www/html/config/store.php << 'STOREEOF'
