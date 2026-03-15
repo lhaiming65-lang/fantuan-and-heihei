@@ -7,7 +7,18 @@ rm -f /etc/apache2/mods-enabled/mpm_event.* /etc/apache2/mods-enabled/mpm_worker
 a2enmod mpm_prefork 2>/dev/null || true
 
 # Railway 环境：从环境变量生成数据库配置
+echo "=== docker-entrypoint: 开始数据库配置 ==="
+echo "MYSQLHOST=[${MYSQLHOST}]"
+echo "MYSQLPORT=[${MYSQLPORT}]"
+echo "MYSQLDATABASE=[${MYSQLDATABASE}]"
+echo "MYSQLUSER=[${MYSQLUSER}]"
+echo "MYSQL_URL 是否设置: $([ -n "$MYSQL_URL" ] && echo '是' || echo '否')"
+
+# 删除旧配置（防止 Volume 或缓存残留）
+rm -f /var/www/html/config/database.php
+
 if [ -n "$MYSQLHOST" ] || [ -n "$MYSQL_URL" ]; then
+    echo "=== 检测到 Railway 环境变量，从环境变量生成 database.php ==="
     if [ -n "$MYSQLHOST" ]; then
         DB_HOST="$MYSQLHOST"
         DB_PORT="${MYSQLPORT:-3306}"
@@ -15,7 +26,6 @@ if [ -n "$MYSQLHOST" ] || [ -n "$MYSQL_URL" ]; then
         DB_USER="${MYSQLUSER:-root}"
         DB_PASS="${MYSQLPASSWORD:-root}"
     else
-        # 解析 MYSQL_URL (简单解析，密码勿含特殊字符)
         DB_HOST=$(echo "$MYSQL_URL" | sed -n 's|.*@\([^:/]*\).*|\1|p')
         DB_PORT=$(echo "$MYSQL_URL" | sed -n 's|.*:\([0-9]*\)/.*|\1|p')
         DB_PORT="${DB_PORT:-3306}"
@@ -23,6 +33,7 @@ if [ -n "$MYSQLHOST" ] || [ -n "$MYSQL_URL" ]; then
         DB_USER=$(echo "$MYSQL_URL" | sed -n 's|mysql://\([^:]*\):.*|\1|p')
         DB_PASS=$(echo "$MYSQL_URL" | sed -n 's|mysql://[^:]*:\([^@]*\)@.*|\1|p')
     fi
+    echo "生成配置: host=${DB_HOST}, port=${DB_PORT}, db=${DB_NAME}, user=${DB_USER}"
     cat > /var/www/html/config/database.php << EOF
 <?php
 declare (strict_types=1);
@@ -38,9 +49,13 @@ return [
     'prefix' => 'acg_',
 ];
 EOF
-# Docker Compose 环境
+    echo "=== database.php 已生成，内容验证: ==="
+    head -5 /var/www/html/config/database.php
 elif [ -f /var/www/html/config/database.docker.php ]; then
+    echo "=== 未检测到 Railway 环境变量，使用 database.docker.php ==="
     cp /var/www/html/config/database.docker.php /var/www/html/config/database.php
+else
+    echo "=== 警告: 无环境变量也无 database.docker.php，数据库配置缺失! ==="
 fi
 
 # 确保 Smarty 模板引擎所需的 runtime 目录存在且可写
