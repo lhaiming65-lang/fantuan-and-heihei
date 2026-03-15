@@ -97,6 +97,11 @@ class Index extends User
         $mime = Config::get('logo_mime') ?: 'image/png';
         if ($data !== '') {
             $raw = @base64_decode($data, true);
+            // 兼容旧数据：表单曾把 base64 里的 + 转成空格，导致解码失败
+            if (($raw === false || $raw === '') && str_contains($data, ' ')) {
+                $data = str_replace(' ', '+', $data);
+                $raw = @base64_decode($data, true);
+            }
             if ($raw !== false && $raw !== '') {
                 header('Content-Type: ' . $mime);
                 header('Cache-Control: public, max-age=86400');
@@ -119,7 +124,10 @@ class Index extends User
             readfile($favicon);
             exit;
         }
-        header('HTTP/1.1 404 Not Found');
+        // 无 logo 时输出 1x1 透明图，避免前台显示破损图标
+        header('Content-Type: image/gif');
+        header('Cache-Control: public, max-age=3600');
+        echo base64_decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', true);
         exit;
     }
 }

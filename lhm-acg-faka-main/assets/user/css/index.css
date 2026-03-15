@@ -796,7 +796,8 @@ main.container .panel:first-of-type .panel-body {
     overflow: visible;
 }
 
-/* 商品详情页：减弱 panel 毛玻璃，避免背景图/渐变被模糊成一大块遮挡表单与详情 */
+/* 首页/商品详情页：减弱 panel 毛玻璃，避免背景图被模糊成一大块“损坏”效果 */
+.index-page .panel,
 .item-page .panel {
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: none;

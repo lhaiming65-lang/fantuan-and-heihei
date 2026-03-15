@@ -60,12 +60,8 @@ abstract class User extends \App\Controller\Base\User
 
             $data['title'] = $title;
             $data['app']['version'] = \config("app")['version'];
-            $logoData = Config::get('logo_data');
-            if ($logoData !== '') {
-                $data['favicon'] = '/?s=user/index/logo&v=' . (Config::get('logo_updated_at') ?: (string)time());
-            } else {
-                $data['favicon'] = '/favicon.ico?v=' . (file_exists(BASE_PATH . '/favicon.ico') ? (string)filemtime(BASE_PATH . '/favicon.ico') : (string)time());
-            }
+            // 统一走 logo 接口，由接口返回 DB 图 / favicon.ico / 透明图，避免 404 导致破损图标
+            $data['favicon'] = '/?s=user/index/logo&v=' . (Config::get('logo_updated_at') ?: (string)time());
 
             $cfg = Config::list();
 
