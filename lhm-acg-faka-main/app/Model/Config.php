@@ -54,6 +54,9 @@ class Config extends Model
      * @return string
      * @throws RuntimeException
      */
+    /** Railway 等多实例时，这些 key 始终从 DB 读，避免实例间文件缓存不同步导致 logo 不更新 */
+    private const DB_ONLY_KEYS = ['logo_data', 'logo_mime', 'logo_updated_at'];
+
     public static function get(string $key): string
     {
         $cacheKey = "_DB_CONFIG_" . $key;
@@ -63,25 +66,30 @@ class Config extends Model
             return (string)$cache;
         }
 
-        $configs = File::read(self::CACHE_FILE, function (string $contents) {
-            return Binary::inst()->unpack($contents);
-        }) ?: [];
+        $skipFileCache = in_array($key, self::DB_ONLY_KEYS, true);
+        if (!$skipFileCache) {
+            $configs = File::read(self::CACHE_FILE, function (string $contents) {
+                return Binary::inst()->unpack($contents);
+            }) ?: [];
 
-        if (isset($configs[$key])) {
-            Context::set($cacheKey, $configs[$key]);
-            return (string)$configs[$key];
+            if (isset($configs[$key])) {
+                Context::set($cacheKey, $configs[$key]);
+                return (string)$configs[$key];
+            }
         }
+
         $cfg = Config::query()->where("key", $key)->first();
         if (!$cfg) {
             return "";
         }
 
-        File::writeForLock(self::CACHE_FILE, function (string $contents) use ($cfg, $key) {
-            $configs = Binary::inst()->unpack($contents) ?: [];
-            $configs[$key] = $cfg->value;
-            return Binary::inst()->pack($configs);
-        });
-        //存储
+        if (!$skipFileCache) {
+            File::writeForLock(self::CACHE_FILE, function (string $contents) use ($cfg, $key) {
+                $configs = Binary::inst()->unpack($contents) ?: [];
+                $configs[$key] = $cfg->value;
+                return Binary::inst()->pack($configs);
+            });
+        }
         Context::set($cacheKey, $cfg->value);
 
         return (string)$cfg->value;
