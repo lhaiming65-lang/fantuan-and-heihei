@@ -32,8 +32,8 @@ abstract class Manage extends \App\Controller\Base\Manage
             $data['title'] = $title;
             $data['app']['version'] = \config("app")['version'];
             $data['app']['server'] = (int)\config("store")['server'];
-            // 统一走 logo 接口，避免 404 导致破损图标
-            $data['favicon'] = '/?s=user/index/logo&v=' . (Config::get('logo_updated_at') ?: (string)time());
+            // 统一走 logo 接口（路径形式）
+            $data['favicon'] = '/user/index/logo?v=' . (Config::get('logo_updated_at') ?: (string)time());
 
             $cfg = Config::list();
 
