@@ -52,6 +52,8 @@ class Config extends Manage
         // 优先使用前端上传时带回的 base64（多实例/无持久盘下最可靠）
         $logoBase64 = isset($post['logo_base64']) ? trim((string)$post['logo_base64']) : '';
         if ($logoBase64 !== '') {
+            // 表单 application/x-www-form-urlencoded 会把 base64 里的 + 转成空格，导致解码后图片损坏
+            $logoBase64 = str_replace(' ', '+', $logoBase64);
             $decoded = @base64_decode($logoBase64, true);
             if ($decoded !== false && $decoded !== '') {
                 $mime = isset($post['logo_mime']) ? trim((string)$post['logo_mime']) : 'image/png';
