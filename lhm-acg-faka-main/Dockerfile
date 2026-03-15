@@ -31,7 +31,8 @@ RUN mkdir -p /var/www/html/assets/cache/general/image \
              /var/www/html/app/Pay \
              /var/www/html/app/Plugin \
              /var/www/html/kernel/Install/OS \
-    && chown -R www-data:www-data /var/www/html/assets/cache /var/www/html/runtime /var/www/html/config /var/www/html/app/Pay /var/www/html/app/Plugin /var/www/html/kernel/Install
+    && chown -R www-data:www-data /var/www/html/assets/cache /var/www/html/runtime /var/www/html/config /var/www/html/app/Pay /var/www/html/app/Plugin /var/www/html/kernel/Install \
+    && chown www-data:www-data /var/www/html/favicon.ico
 
 # 设置 Apache 文档根目录
 ENV APACHE_DOCUMENT_ROOT /var/www/html

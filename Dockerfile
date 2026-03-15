@@ -35,7 +35,8 @@ RUN mkdir -p /var/www/html/runtime/view/cache \
 RUN sed -ri -e 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # 确保 www-data 有写入权限
-RUN chown -R www-data:www-data /var/www/html/config /var/www/html/kernel/Install
+RUN chown -R www-data:www-data /var/www/html/config /var/www/html/kernel/Install \
+    && chown www-data:www-data /var/www/html/favicon.ico
 
 COPY lhm-acg-faka-main/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
