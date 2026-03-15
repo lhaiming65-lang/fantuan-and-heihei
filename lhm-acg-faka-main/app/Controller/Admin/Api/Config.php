@@ -49,10 +49,30 @@ class Config extends Manage
         $keys = ["closed_message", "background_mobile_url", "closed", "username_len", "user_theme", "user_mobile_theme", "background_url", "shop_name", "title", "description", "keywords", "registered_state", "registered_type", "registered_verification", "registered_phone_verification", "registered_email_verification", "login_verification", "forget_type", "notice", "trade_verification", "session_expire"]; //全部字段
         $inits = ["closed", "registered_state", "registered_type", "registered_verification", "registered_phone_verification", "registered_email_verification", "login_verification", "forget_type", "trade_verification", "session_expire"]; //需要初始化的字段
 
-        $file = $post['logo'];
-        if ($file != '/favicon.ico') {
-            @copy(BASE_PATH . $file, BASE_PATH . '/favicon.ico');
-            @unlink(BASE_PATH . $file);
+        $file = isset($post['logo']) ? trim((string)$post['logo']) : '';
+        // 可能是完整 URL，只取路径部分
+        if ($file !== '' && (str_starts_with($file, 'http://') || str_starts_with($file, 'https://'))) {
+            $file = (string)parse_url($file, PHP_URL_PATH);
+        }
+        if ($file !== '' && $file !== '/favicon.ico' && is_file(BASE_PATH . $file)) {
+            $absPath = BASE_PATH . $file;
+            @copy($absPath, BASE_PATH . '/favicon.ico');
+            // 持久化到数据库，部署/换容器后仍可用（如 Railway）
+            $raw = @file_get_contents($absPath);
+            if ($raw !== false && $raw !== '') {
+                $mime = 'image/png';
+                if (function_exists('finfo_open')) {
+                    $fi = finfo_open(FILEINFO_MIME_TYPE);
+                    if ($fi) {
+                        $mime = (string)finfo_file($fi, $absPath) ?: $mime;
+                        finfo_close($fi);
+                    }
+                }
+                CFG::put('logo_data', base64_encode($raw));
+                CFG::put('logo_mime', $mime);
+                CFG::put('logo_updated_at', (string)time());
+            }
+            @unlink($absPath);
         }
         try {
             if (isset($post['ip_get_mode'])) {

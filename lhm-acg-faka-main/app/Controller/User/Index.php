@@ -87,4 +87,39 @@ class Index extends User
     {
         return $this->theme("订单查询", "QUERY", "Index/Query.html", ['user' => $this->getUser(), 'tradeNo' => (string)$_GET['tradeNo']]);
     }
+
+    /**
+     * 输出站点 LOGO（优先从数据库读取，便于 Railway 等无持久盘环境）
+     */
+    public function logo(): void
+    {
+        $data = Config::get('logo_data');
+        $mime = Config::get('logo_mime') ?: 'image/png';
+        if ($data !== '') {
+            $raw = @base64_decode($data, true);
+            if ($raw !== false && $raw !== '') {
+                header('Content-Type: ' . $mime);
+                header('Cache-Control: public, max-age=86400');
+                echo $raw;
+                exit;
+            }
+        }
+        $favicon = BASE_PATH . '/favicon.ico';
+        if (is_file($favicon)) {
+            $mime = 'image/x-icon';
+            if (function_exists('finfo_open')) {
+                $fi = finfo_open(FILEINFO_MIME_TYPE);
+                if ($fi) {
+                    $mime = (string)finfo_file($fi, $favicon) ?: $mime;
+                    finfo_close($fi);
+                }
+            }
+            header('Content-Type: ' . $mime);
+            header('Cache-Control: public, max-age=86400');
+            readfile($favicon);
+            exit;
+        }
+        header('HTTP/1.1 404 Not Found');
+        exit;
+    }
 }
