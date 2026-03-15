@@ -46,21 +46,9 @@ class Config extends Manage
     public function setting(Request $request): array
     {
         $post = $request->post(flags: Filter::NORMAL);
-        $keys = ["closed_message", "background_mobile_url", "closed", "username_len", "user_theme", "user_mobile_theme", "background_url", "shop_name", "title", "description", "keywords", "registered_state", "registered_type", "registered_verification", "registered_phone_verification", "registered_email_verification", "login_verification", "forget_type", "notice", "trade_verification", "session_expire"]; //全部字段
+        $keys = ["site_logo", "closed_message", "background_mobile_url", "closed", "username_len", "user_theme", "user_mobile_theme", "background_url", "shop_name", "title", "description", "keywords", "registered_state", "registered_type", "registered_verification", "registered_phone_verification", "registered_email_verification", "login_verification", "forget_type", "notice", "trade_verification", "session_expire"]; //全部字段
         $inits = ["closed", "registered_state", "registered_type", "registered_verification", "registered_phone_verification", "registered_email_verification", "login_verification", "forget_type", "trade_verification", "session_expire"]; //需要初始化的字段
 
-        $file = $post['logo'];
-        if ($file != '/favicon.ico') {
-            $src = BASE_PATH . $file;
-            $dst = BASE_PATH . '/favicon.ico';
-            if (!is_file($src)) {
-                throw new JSONException("LOGO文件不存在，请重新上传");
-            }
-            if (!copy($src, $dst)) {
-                throw new JSONException("LOGO保存失败，请检查目录写入权限");
-            }
-            @unlink($src);
-        }
         try {
             if (isset($post['ip_get_mode'])) {
                 Client::setClientMode((int)$post['ip_get_mode']);

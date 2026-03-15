@@ -34,9 +34,13 @@ RUN mkdir -p /var/www/html/runtime/view/cache \
 # Apache：启用 AllowOverride 以支持 .htaccess 重写规则
 RUN sed -ri -e 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
-# 确保 www-data 有写入权限
-RUN chown -R www-data:www-data /var/www/html/config /var/www/html/kernel/Install \
-    && chown www-data:www-data /var/www/html/favicon.ico
+# 确保 www-data 有写入权限（config, Install, 以及上传缓存目录）
+RUN mkdir -p /var/www/html/assets/cache/general/image \
+             /var/www/html/assets/cache/general/video \
+             /var/www/html/assets/cache/general/doc \
+             /var/www/html/assets/cache/general/other \
+             /var/www/html/assets/cache/images \
+    && chown -R www-data:www-data /var/www/html/config /var/www/html/kernel/Install /var/www/html/assets/cache
 
 COPY lhm-acg-faka-main/docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

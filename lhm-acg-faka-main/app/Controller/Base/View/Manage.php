@@ -55,7 +55,7 @@ abstract class Manage extends \App\Controller\Base\Manage
                 };
             }
 
-            $data['favicon'] = "/favicon.ico";
+            $data['favicon'] = !empty($data['config']['site_logo']) ? $data['config']['site_logo'] : '/favicon.ico';
             $data['_store_initialize'] = file_exists(BASE_PATH . "/kernel/Plugin.php");
 
             return View::render('Admin/' . $template, $data);

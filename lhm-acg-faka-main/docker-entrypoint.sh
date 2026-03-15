@@ -43,10 +43,6 @@ elif [ -f /var/www/html/config/database.docker.php ]; then
     cp /var/www/html/config/database.docker.php /var/www/html/config/database.php
 fi
 
-# 确保 favicon.ico 存在且可写（LOGO 上传会覆盖此文件）
-touch /var/www/html/favicon.ico
-chown www-data:www-data /var/www/html/favicon.ico
-
 # 确保 Smarty 模板引擎所需的 runtime 目录存在且可写
 mkdir -p /var/www/html/runtime/view/cache /var/www/html/runtime/view/compile
 chown -R www-data:www-data /var/www/html/runtime
