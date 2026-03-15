@@ -72,7 +72,7 @@ class Upload extends Manage
             $fileName = $existingPath;
         } else {
             if ($existingPath) {
-                $this->upload->remove($existingPath);
+                \App\Model\Upload::query()->where("hash", $md5)->delete();
             }
             $this->upload->add($fileName, $type);
         }
