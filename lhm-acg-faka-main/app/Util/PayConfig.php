@@ -12,7 +12,8 @@ class PayConfig
      */
     public static function config(string $handle): ?array
     {
-        return require(BASE_PATH . '/app/Pay/' . $handle . '/Config/Config.php');
+        $path = BASE_PATH . '/app/Pay/' . $handle . '/Config/Config.php';
+        return is_file($path) ? require($path) : null;
     }
 
     /**
@@ -21,7 +22,8 @@ class PayConfig
      */
     public static function info(string $handle): ?array
     {
-        return require(BASE_PATH . '/app/Pay/' . $handle . '/Config/Info.php');
+        $path = BASE_PATH . '/app/Pay/' . $handle . '/Config/Info.php';
+        return is_file($path) ? require($path) : null;
     }
 
 
@@ -32,7 +34,13 @@ class PayConfig
      */
     public static function log(string $handle, string $type, string $message): void
     {
-        $path = BASE_PATH . "/app/Pay/{$handle}/runtime.log";
-        file_put_contents($path, "[{$type}][" . Date::current() . "]:" . $message . PHP_EOL, FILE_APPEND);
+        $dir = BASE_PATH . "/app/Pay/{$handle}";
+        $path = $dir . "/runtime.log";
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        if (is_dir($dir)) {
+            file_put_contents($path, "[{$type}][" . Date::current() . "]:" . $message . PHP_EOL, FILE_APPEND);
+        }
     }
 }

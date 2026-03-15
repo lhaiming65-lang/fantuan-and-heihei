@@ -70,6 +70,9 @@ class Plugin
     public static function getPlugins(bool $cache = true): ?array
     {
         $path = BASE_PATH . "/app/Plugin/";
+        if (!is_dir($path)) {
+            return [];
+        }
         $scan = File::scan($path);
         $plugins = [];
         foreach ($scan as $item) {

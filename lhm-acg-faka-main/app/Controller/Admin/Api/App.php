@@ -201,9 +201,14 @@ class App extends Manage
     {
         $file = BASE_PATH . "/runtime/plugin/store.cache";
 
-        $filectime = filectime($file);
-        if ($filectime + 120 > time()) {
-            throw new JSONException("CACHE HIT");
+        if (!is_file($file)) {
+            $appStore = [];
+        } else {
+            $filectime = filectime($file);
+            if ($filectime + 120 > time()) {
+                throw new JSONException("CACHE HIT");
+            }
+            $appStore = (array)json_decode((string)file_get_contents($file), true);
         }
 
         $plugins = $this->app->plugins([
@@ -213,15 +218,7 @@ class App extends Manage
             "group" => 0,
         ]);
 
-        //appStroe缓存
-        $appStore = (array)json_decode((string)file_get_contents($file), true);
-
         foreach ($plugins['rows'] as $plugin) {
-            // $info = Helper::isInstall($plugin['plugin_key'], (int)$plugin['type']);
-
-            /*     if (!$info) {
-                     continue;
-                 }*/
             $appStore[$plugin['plugin_key']] = [
                 "icon" => $plugin['icon'],
                 "name" => $plugin['plugin_name'],
@@ -232,7 +229,13 @@ class App extends Manage
             ];
         }
 
-        file_put_contents($file, json_encode($appStore));
+        $dir = dirname($file);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        if (is_dir($dir)) {
+            file_put_contents($file, json_encode($appStore));
+        }
         return $this->json(200, "ok", $appStore);
     }
 
@@ -242,7 +245,9 @@ class App extends Manage
     public function delUpdates(): array
     {
         $file = BASE_PATH . "/runtime/plugin/store.cache";
-        unlink($file);
+        if (is_file($file)) {
+            @unlink($file);
+        }
         return $this->json(200, "ok");
     }
 

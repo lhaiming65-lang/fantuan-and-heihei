@@ -60,7 +60,7 @@ abstract class User extends \App\Controller\Base\User
 
             $data['title'] = $title;
             $data['app']['version'] = \config("app")['version'];
-            $data['favicon'] = "/favicon.ico";
+            $data['favicon'] = "/favicon.ico?v=" . (file_exists(BASE_PATH . '/favicon.ico') ? (string)filemtime(BASE_PATH . '/favicon.ico') : (string)time());
 
             $cfg = Config::list();
 

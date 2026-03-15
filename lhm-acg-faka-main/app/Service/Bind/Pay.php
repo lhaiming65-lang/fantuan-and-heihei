@@ -20,7 +20,7 @@ class Pay implements \App\Service\Pay
     public function getPluginLog(string $handle): string
     {
         $path = BASE_PATH . "/app/Pay/{$handle}/runtime.log";
-        return (string)file_get_contents($path);
+        return is_file($path) ? (string)file_get_contents($path) : '';
     }
 
     /**
@@ -30,7 +30,7 @@ class Pay implements \App\Service\Pay
     public function ClearPluginLog(string $handle): bool
     {
         $path = BASE_PATH . "/app/Pay/{$handle}/runtime.log";
-        return unlink($path);
+        return is_file($path) && unlink($path);
     }
 
     /**
@@ -39,6 +39,9 @@ class Pay implements \App\Service\Pay
     public function getPlugins(): array
     {
         $path = BASE_PATH . '/app/Pay/';
+        if (!is_dir($path)) {
+            return [];
+        }
         $list = scandir($path);
         $dir = [];
         foreach ($list as $item) {

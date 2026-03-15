@@ -88,10 +88,14 @@ fi
 # 确保 config 目录可写，否则应用商店/支付插件注册与登录无法写入 store.php（会报「没有文件写入插件权限」）
 chown -R www-data:www-data /var/www/html/config
 
-# Railway：首次部署时自动初始化数据库
-if [ ! -f /var/www/html/kernel/Install/Lock ] && [ -n "$MYSQLHOST" ]; then
-    echo "Railway: 首次部署，初始化数据库..."
-    php /var/www/html/docker-init-db.php || true
+# Railway/无持久化：无 Lock 时先检查数据库是否已有表，避免每次部署都执行 init 清空数据
+if [ ! -f /var/www/html/kernel/Install/Lock ] && { [ -n "$MYSQLHOST" ] || [ -n "$MYSQL_URL" ]; }; then
+    if php /var/www/html/docker-check-db.php 2>/dev/null; then
+        echo "Railway: 数据库已存在，已恢复 Lock，未执行初始化。"
+    else
+        echo "Railway: 首次部署或数据库为空，执行初始化..."
+        php /var/www/html/docker-init-db.php || true
+    fi
 fi
 
 # Railway：监听 PORT 环境变量（默认 80）

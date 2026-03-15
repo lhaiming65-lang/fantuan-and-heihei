@@ -49,7 +49,7 @@ class Hook
         if (strtolower($route[0]) == "plugin") {
             $pluginName = ucfirst($route[1]);
             $pluginCfg = Plugin::getPlugin($pluginName);
-            if ($pluginCfg['PLUGIN_CONFIG']['STATUS'] != 1) {
+            if ($pluginCfg === null || ($pluginCfg['PLUGIN_CONFIG']['STATUS'] ?? 0) != 1) {
                 Client::redirect("/", "当前插件未启用");
             }
         }

@@ -775,6 +775,9 @@ class Order implements \App\Service\Order
         $json = json_encode($map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $payInfo = PayConfig::info($handle);
         $payConfig = PayConfig::config($handle);
+        if ($payInfo === null || $payConfig === null) {
+            throw new JSONException("支付插件未安装或配置缺失");
+        }
         $callback = $payInfo['callback'];
 
         $autoload = BASE_PATH . '/app/Pay/' . $handle . "/Vendor/autoload.php";

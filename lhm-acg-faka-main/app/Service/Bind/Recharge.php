@@ -90,10 +90,14 @@ class Recharge implements \App\Service\Recharge
             $order->amount = $order->amount + ($pay->cost_type == 0 ? $pay->cost : $order->amount * $pay->cost);
             $order->amount = (float)sprintf("%.2f", (int)(string)($order->amount * 100) / 100);
 
+            $payConfig = PayConfig::config($pay->handle);
+            if ($payConfig === null) {
+                throw new JSONException("支付插件配置缺失，请先在后台配置该支付方式");
+            }
             $payObject = new $class;
             $payObject->amount = $order->amount;
             $payObject->tradeNo = $order->trade_no;
-            $payObject->config = PayConfig::config($pay->handle);
+            $payObject->config = $payConfig;
             $payObject->callbackUrl = $callbackDomain . '/user/api/rechargeNotification/callback.' . $pay->handle;
             $payObject->returnUrl = $clientDomain . '/user/recharge/index';
             $payObject->clientIp = $order->create_ip;

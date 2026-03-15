@@ -5,7 +5,7 @@
     <title>#{$title}-#{$config.title}</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="shortcut icon" href="/favicon.ico"/>
+    <link rel="shortcut icon" href="#{$favicon}"/>
 
     #{css(
     [
@@ -50,7 +50,7 @@
             <div class="aside-logo flex-column-auto" id="kt_aside_logo">
                 <!--begin::Logo-->
                 <a href="/admin/dashboard/index" class="d-flex align-items-center">
-                    <img style="border-radius: 50%;height: 22px;" src="/favicon.ico">
+                    <img style="border-radius: 50%;height: 22px;" src="#{$favicon}" alt="LOGO">
                     <span class="logo fw-bolder ms-2 fs-4" style="color: #919191;">#{$config.shop_name}</span>
                 </a>
                 <!--end::Logo-->
@@ -335,7 +335,7 @@
                     <!--begin::Mobile logo-->
                     <div class="align-items-center flex-grow-1 flex-lg-grow-0 d-hide show-mobile">
                         <a href="/admin/dashboard/index"><img height="25px" style="border-radius: 50%;"
-                                                              src="/favicon.ico"></a>
+                                                              src="#{$favicon}" alt="LOGO"></a>
                     </div>
                     <!--end::Mobile logo-->
                     <!--begin::Wrapper-->

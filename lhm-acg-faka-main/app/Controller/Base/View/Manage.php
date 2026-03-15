@@ -32,6 +32,7 @@ abstract class Manage extends \App\Controller\Base\Manage
             $data['title'] = $title;
             $data['app']['version'] = \config("app")['version'];
             $data['app']['server'] = (int)\config("store")['server'];
+            $data['favicon'] = "/favicon.ico?v=" . (file_exists(BASE_PATH . '/favicon.ico') ? (string)filemtime(BASE_PATH . '/favicon.ico') : (string)time());
 
             $cfg = Config::list();
 

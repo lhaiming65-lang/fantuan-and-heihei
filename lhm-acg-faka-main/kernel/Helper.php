@@ -268,17 +268,22 @@ if (!function_exists("debug")) {
 if (!function_exists("getPluginConfig")) {
     function getPluginConfig(string $name)
     {
-        return require(BASE_PATH . '/app/Plugin/' . $name . '/Config/Config.php');
+        $file = BASE_PATH . '/app/Plugin/' . $name . '/Config/Config.php';
+        return file_exists($file) ? require($file) : [];
     }
 }
 
 if (!function_exists("PluginView")) {
     function PluginView(string $src, bool $debug = false): string
     {
-        $route = explode("/", trim($_GET['s'], "/"));
-        if (strtolower($route[0]) == "plugin") {
+        $route = explode("/", trim((string)($_GET['s'] ?? ''), "/"));
+        if (strtolower($route[0] ?? '') == "plugin" && !empty($route[1])) {
             $pluginName = ucfirst($route[1]);
-            return "/app/Plugin/{$pluginName}/View/{$src}?v=" . Plugin::getPlugin($pluginName)[\App\Consts\Plugin::VERSION] . (!$debug ?: "&debug=" . Str::generateRandStr(16));
+            $plugin = \Kernel\Util\Plugin::getPlugin($pluginName);
+            if ($plugin === null) {
+                return "";
+            }
+            return "/app/Plugin/{$pluginName}/View/{$src}?v=" . $plugin[\App\Consts\Plugin::VERSION] . (!$debug ?: "&debug=" . Str::generateRandStr(16));
         }
 
         return "";
@@ -288,7 +293,11 @@ if (!function_exists("PluginView")) {
 if (!function_exists("Plugin")) {
     function Plugin(string $pluginName, string $src, bool $debug = false): string
     {
-        return "/app/Plugin/{$pluginName}/{$src}?v=" . Plugin::getPlugin($pluginName)[\App\Consts\Plugin::VERSION] . (!$debug ?: "&debug=" . Str::generateRandStr(16));
+        $plugin = \Kernel\Util\Plugin::getPlugin($pluginName);
+        if ($plugin === null) {
+            return "";
+        }
+        return "/app/Plugin/{$pluginName}/{$src}?v=" . $plugin[\App\Consts\Plugin::VERSION] . (!$debug ?: "&debug=" . Str::generateRandStr(16));
     }
 }
 
