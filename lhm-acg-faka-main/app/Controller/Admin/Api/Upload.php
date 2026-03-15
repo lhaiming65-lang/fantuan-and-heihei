@@ -48,7 +48,6 @@ class Upload extends Manage
     {
         $type = strtolower((string)$request->get("mime"));
         $thumbHeight = (int)$request->get("thumb_height");
-        $forLogo = strtolower((string)$request->get("for")) === 'logo';
 
         if (!in_array($type, self::MIME)) {
             throw new JSONException("mime not supported");
@@ -87,25 +86,7 @@ class Upload extends Manage
             $append['thumb_url'] = $thumbUrl;
         }
 
-        $data = ["url" => $fileName, "append" => $append];
-        // 用于站点 LOGO：直接返回 base64，保存时写入 DB，避免多实例/无持久盘环境下保存请求读不到上传文件
-        if ($forLogo && $type === 'image') {
-            $absPath = BASE_PATH . $fileName;
-            $raw = @file_get_contents($absPath);
-            if ($raw !== false && $raw !== '') {
-                $data['base64'] = base64_encode($raw);
-                $data['mime'] = 'image/png';
-                if (function_exists('finfo_open')) {
-                    $fi = finfo_open(FILEINFO_MIME_TYPE);
-                    if ($fi) {
-                        $data['mime'] = (string)finfo_file($fi, $absPath) ?: $data['mime'];
-                        finfo_close($fi);
-                    }
-                }
-            }
-        }
-
-        return $this->json(200, '上传成功', $data);
+        return $this->json(200, '上传成功', ["url" => $fileName, "append" => $append]);
     }
 
     /**

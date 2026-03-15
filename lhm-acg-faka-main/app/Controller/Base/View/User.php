@@ -60,8 +60,7 @@ abstract class User extends \App\Controller\Base\User
 
             $data['title'] = $title;
             $data['app']['version'] = \config("app")['version'];
-            // 统一走 logo 接口（路径形式，便于 background-image / 代理 正确请求）
-            $data['favicon'] = '/user/index/logo?v=' . (Config::get('logo_updated_at') ?: (string)time());
+            $data['favicon'] = "/favicon.ico";
 
             $cfg = Config::list();
 

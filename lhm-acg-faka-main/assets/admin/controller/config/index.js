@@ -94,16 +94,9 @@
 
     function _UploadLogoAndBackground() {
 
-        util.bindButtonUpload(".upload-logo", "/admin/api/upload/send?mime=image&for=logo", data => {
+        util.bindButtonUpload(".upload-logo", "/admin/api/upload/send?mime=image", data => {
             $('input[name=logo]').val(data.url);
-            if (data.base64) {
-                $('#logo_base64').val(data.base64);
-                $('#logo_mime').val(data.mime || 'image/png');
-            } else {
-                $('#logo_base64').val('');
-                $('#logo_mime').val('');
-            }
-            layer.msg('图标上传成功，请点击保存后生效');
+            layer.msg('图标上传成功，但需要保存后才会生效');
             $('.image-input-wrapper').css({
                 "background-image": `url(${data.url})`
             });
@@ -173,13 +166,8 @@
 
     function _Save() {
         $('.save-data').click(function () {
-            const formData = util.arrayToObject($("#data-form").serializeArray());
-            util.post("/admin/api/config/setting", formData, res => {
+            util.post("/admin/api/config/setting", util.arrayToObject($("#data-form").serializeArray()), res => {
                 layer.msg(res.msg);
-                // 保存成功后刷新页面，使 LOGO/favicon 立即更新（否则侧栏和标签页仍显示旧图）
-                setTimeout(function () {
-                    window.location.reload();
-                }, 600);
             });
         });
     }

@@ -41,7 +41,7 @@
                                          style="background-image: url(/assets/admin/images/setting/blank.png)">
                                         <!--begin::Preview existing logo-->
                                         <div class="image-input-wrapper w-125px h-125px"
-                                             style="background-image: url(#{$favicon})"></div>
+                                             style="background-image: url(/favicon.ico)"></div>
                                         <!--end::Preview existing logo-->
                                         <!--begin::Label-->
                                         <label class="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow"
@@ -52,8 +52,6 @@
                                             <input type="file" class="upload-logo"
                                                    accept=".png, .jpg, .jpeg, .ico"/>
                                             <input type="hidden" name="logo" value="/favicon.ico"/>
-                                            <input type="hidden" name="logo_base64" id="logo_base64" value=""/>
-                                            <input type="hidden" name="logo_mime" id="logo_mime" value=""/>
                                             <!--end::Inputs-->
                                         </label>
                                         <!--end::Label-->
@@ -504,5 +502,5 @@
 </div>
 <!--end::Content-->
 
-#{ready("/assets/admin/controller/config/index.js?logo=1")}
+#{ready("/assets/admin/controller/config/index.js")}
 #{include file="../Footer.html"}

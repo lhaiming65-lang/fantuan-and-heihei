@@ -49,65 +49,10 @@ class Config extends Manage
         $keys = ["closed_message", "background_mobile_url", "closed", "username_len", "user_theme", "user_mobile_theme", "background_url", "shop_name", "title", "description", "keywords", "registered_state", "registered_type", "registered_verification", "registered_phone_verification", "registered_email_verification", "login_verification", "forget_type", "notice", "trade_verification", "session_expire"]; //全部字段
         $inits = ["closed", "registered_state", "registered_type", "registered_verification", "registered_phone_verification", "registered_email_verification", "login_verification", "forget_type", "trade_verification", "session_expire"]; //需要初始化的字段
 
-        // 优先使用前端上传时带回的 base64（多实例/无持久盘下最可靠）
-        $logoBase64 = isset($post['logo_base64']) ? trim((string)$post['logo_base64']) : '';
-        if ($logoBase64 !== '') {
-            // 表单 application/x-www-form-urlencoded 会把 base64 里的 + 转成空格，导致解码后图片损坏
-            $logoBase64 = str_replace(' ', '+', $logoBase64);
-            $decoded = @base64_decode($logoBase64, true);
-            if ($decoded !== false && $decoded !== '') {
-                $mime = isset($post['logo_mime']) ? trim((string)$post['logo_mime']) : 'image/png';
-                CFG::put('logo_data', $logoBase64);
-                CFG::put('logo_mime', $mime);
-                CFG::put('logo_updated_at', (string)time());
-            }
-        } else {
-            $file = isset($post['logo']) ? trim((string)$post['logo']) : '';
-            if ($file !== '' && (str_starts_with($file, 'http://') || str_starts_with($file, 'https://'))) {
-                $file = (string)parse_url($file, PHP_URL_PATH);
-            }
-            $raw = null;
-            $mime = 'image/png';
-            if ($file !== '' && $file !== '/favicon.ico') {
-                $absPath = BASE_PATH . $file;
-                if (is_file($absPath)) {
-                    @copy($absPath, BASE_PATH . '/favicon.ico');
-                    $raw = @file_get_contents($absPath);
-                    if (function_exists('finfo_open') && $raw !== false) {
-                        $fi = finfo_open(FILEINFO_MIME_TYPE);
-                        if ($fi) {
-                            $mime = (string)finfo_file($fi, $absPath) ?: $mime;
-                            finfo_close($fi);
-                        }
-                    }
-                    @unlink($absPath);
-                } else {
-                    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-                        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-                        ? 'https' : 'http';
-                    $host = $_SERVER['HTTP_HOST'] ?? '';
-                    if ($host !== '') {
-                        $imageUrl = $scheme . '://' . $host . $file;
-                        $ctx = stream_context_create([
-                            'http' => ['timeout' => 10],
-                            'ssl' => ['verify_peer' => false, 'verify_peer_name' => false]
-                        ]);
-                        $raw = @file_get_contents($imageUrl, false, $ctx);
-                        if ($raw !== false && $raw !== '') {
-                            $fi = function_exists('finfo_open') ? finfo_open(FILEINFO_MIME_TYPE) : false;
-                            if ($fi) {
-                                $mime = (string)@finfo_buffer($fi, $raw) ?: $mime;
-                                finfo_close($fi);
-                            }
-                        }
-                    }
-                }
-                if ($raw !== false && $raw !== '') {
-                    CFG::put('logo_data', base64_encode($raw));
-                    CFG::put('logo_mime', $mime);
-                    CFG::put('logo_updated_at', (string)time());
-                }
-            }
+        $file = $post['logo'];
+        if ($file != '/favicon.ico') {
+            @copy(BASE_PATH . $file, BASE_PATH . '/favicon.ico');
+            @unlink(BASE_PATH . $file);
         }
         try {
             if (isset($post['ip_get_mode'])) {

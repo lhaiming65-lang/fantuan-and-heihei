@@ -87,47 +87,4 @@ class Index extends User
     {
         return $this->theme("订单查询", "QUERY", "Index/Query.html", ['user' => $this->getUser(), 'tradeNo' => (string)$_GET['tradeNo']]);
     }
-
-    /**
-     * 输出站点 LOGO（优先从数据库读取，便于 Railway 等无持久盘环境）
-     */
-    public function logo(): void
-    {
-        $data = Config::get('logo_data');
-        $mime = Config::get('logo_mime') ?: 'image/png';
-        if ($data !== '') {
-            $raw = @base64_decode($data, true);
-            // 兼容旧数据：表单曾把 base64 里的 + 转成空格，导致解码失败
-            if (($raw === false || $raw === '') && str_contains($data, ' ')) {
-                $data = str_replace(' ', '+', $data);
-                $raw = @base64_decode($data, true);
-            }
-            if ($raw !== false && $raw !== '') {
-                header('Content-Type: ' . $mime);
-                header('Cache-Control: public, max-age=86400');
-                echo $raw;
-                exit;
-            }
-        }
-        $favicon = BASE_PATH . '/favicon.ico';
-        if (is_file($favicon)) {
-            $mime = 'image/x-icon';
-            if (function_exists('finfo_open')) {
-                $fi = finfo_open(FILEINFO_MIME_TYPE);
-                if ($fi) {
-                    $mime = (string)finfo_file($fi, $favicon) ?: $mime;
-                    finfo_close($fi);
-                }
-            }
-            header('Content-Type: ' . $mime);
-            header('Cache-Control: public, max-age=86400');
-            readfile($favicon);
-            exit;
-        }
-        // 无 logo 时输出 1x1 透明图，避免前台显示破损图标
-        header('Content-Type: image/gif');
-        header('Cache-Control: public, max-age=3600');
-        echo base64_decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', true);
-        exit;
-    }
 }
