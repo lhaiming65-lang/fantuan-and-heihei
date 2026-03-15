@@ -60,13 +60,13 @@ abstract class User extends \App\Controller\Base\User
 
             $data['title'] = $title;
             $data['app']['version'] = \config("app")['version'];
+            $data['favicon'] = "/favicon.ico";
+
             $cfg = Config::list();
 
             foreach ($cfg as $k => $v) {
                 $data["config"][$k] = $v;
             }
-
-            $data['favicon'] = !empty($data['config']['site_logo']) ? $data['config']['site_logo'] : '/favicon.ico';
 
             if (Client::isMobile()) {
                 $theme = $cfg['user_mobile_theme'];

@@ -95,9 +95,9 @@
     function _UploadLogoAndBackground() {
 
         util.bindButtonUpload(".upload-logo", "/admin/api/upload/send?mime=image", data => {
-            $('input[name=site_logo]').val(data.url);
+            $('input[name=logo]').val(data.url);
             layer.msg('图标上传成功，但需要保存后才会生效');
-            $('.image-input-wrapper').eq(0).css({
+            $('.image-input-wrapper').css({
                 "background-image": `url(${data.url})`
             });
         });
@@ -168,12 +168,6 @@
         $('.save-data').click(function () {
             util.post("/admin/api/config/setting", util.arrayToObject($("#data-form").serializeArray()), res => {
                 layer.msg(res.msg);
-                const logoUrl = $('input[name=site_logo]').val();
-                if (logoUrl) {
-                    const bust = logoUrl + (logoUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
-                    $('link[rel="shortcut icon"]').attr('href', bust);
-                    $('img[alt="LOGO"]').attr('src', bust);
-                }
             });
         });
     }

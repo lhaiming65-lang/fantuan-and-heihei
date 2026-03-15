@@ -636,11 +636,8 @@ const util = new class Util {
 
     bindButtonUpload(obj, url, done) {
         $(obj).change(function () {
-            const input = this;
-            const file = input.files[0];
-            if (!file) return;
             let formdata = new FormData();
-            formdata.append("file", file);
+            formdata.append("file", $(obj)[0].files[0]);
             Loading.show();
             $.ajax({
                 type: "POST",
@@ -660,9 +657,6 @@ const util = new class Util {
                 error: function (data) {
                     Loading.hide();
                     layer.msg('网络错误');
-                },
-                complete: function () {
-                    $(input).val('');
                 }
             });
         });

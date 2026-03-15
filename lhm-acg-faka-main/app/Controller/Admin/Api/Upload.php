@@ -65,14 +65,10 @@ class Upload extends Manage
 
         $fileName = $static_path . $handle['new_name'];
 
-        $existingPath = $this->upload->get(md5_file(BASE_PATH . $fileName));
-        if ($existingPath && is_file(BASE_PATH . $existingPath)) {
+        if ($tmp = $this->upload->get(md5_file(BASE_PATH . $fileName))) {
             File::remove(BASE_PATH . $fileName);
-            $fileName = $existingPath;
+            $fileName = $tmp;
         } else {
-            if ($existingPath) {
-                \App\Model\Upload::query()->where("path", $existingPath)->delete();
-            }
             $this->upload->add($fileName, $type);
         }
 
