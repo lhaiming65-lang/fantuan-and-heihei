@@ -97,8 +97,8 @@
         util.bindButtonUpload(".upload-logo", "/admin/api/upload/send?mime=image", data => {
             $('input[name=logo]').val(data.url);
             layer.msg('图标上传成功，但需要保存后才会生效');
-            $('.image-input-wrapper').css({
-                "background-image": `url(${data.url})`
+            $('.image-input-wrapper').eq(0).css({
+                "background-image": `url(${data.url}?t=${Date.now()})`
             });
         });
 
@@ -168,6 +168,13 @@
         $('.save-data').click(function () {
             util.post("/admin/api/config/setting", util.arrayToObject($("#data-form").serializeArray()), res => {
                 layer.msg(res.msg);
+                const bustUrl = `/favicon.ico?t=${Date.now()}`;
+                $('input[name=logo]').val('/favicon.ico');
+                $('.image-input-wrapper').eq(0).css({
+                    "background-image": `url(${bustUrl})`
+                });
+                $('link[rel="shortcut icon"]').attr('href', bustUrl);
+                $('img[alt="LOGO"]').attr('src', bustUrl);
             });
         });
     }

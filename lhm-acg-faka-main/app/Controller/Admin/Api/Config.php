@@ -51,8 +51,15 @@ class Config extends Manage
 
         $file = $post['logo'];
         if ($file != '/favicon.ico') {
-            @copy(BASE_PATH . $file, BASE_PATH . '/favicon.ico');
-            @unlink(BASE_PATH . $file);
+            $src = BASE_PATH . $file;
+            $dst = BASE_PATH . '/favicon.ico';
+            if (!is_file($src)) {
+                throw new JSONException("LOGO文件不存在，请重新上传");
+            }
+            if (!copy($src, $dst)) {
+                throw new JSONException("LOGO保存失败，请检查目录写入权限");
+            }
+            @unlink($src);
         }
         try {
             if (isset($post['ip_get_mode'])) {
